@@ -2,56 +2,110 @@ const express=require('express');
 const app=express();
 const products=require("./product");
 const bodyParser=require("body-parser");
+const mongoose=require("mongoose");
+
+
 
 
 app.use(bodyParser.json());
- 
-app.use((req,res,next)=>{
- console.log("this is custom middleware");
- console.log(req.body)
- next()
+
+mongoose.connect('mongodb://127.0.0.1:27017/Backend1')
+.then(()=>{
+    console.log("database connected succesfully")
 })
-console.log(products)
-
-
-
-app.get("/",(req,res)=>{
-    res.send("<h1>Ankit Saraswat<h1>")
+.catch((err)=>{
+    console.log(err)
 })
 
-app.get("/products",(req,res)=>{
-    res.send(products)
-})
 
-app.get("/products/:id",(req,res)=>{
-    const product=products.find((product)=>product.id==req.params.id);
-    if(product==undefined){
-        res.status(404);
-        res.send("product id passed is not in the database")
+const productSchema=mongoose.Schema({
+    id:{
+        type:String,
+        required:true
+    },
+
+    name:{
+        type:String,
+        required:true,
+
+    },
+    description:{
+        type:String,
+        required:true
+    },
+    feature:{
+        type:String
+    },
+    price:{
+        type:Number,
+        required:true
+    },
+    category:{
+        type:String,
+        required:true,
+        enum:['Fashion','Electronics']
     }
-    return res.send(product);
+});
 
+const Product=mongoose.model("product",productSchema)
+
+
+//create a new product 
+app.post('/product',(req,res)=>{
+    if(!req.body){
+        return res.status(400).send("Product can not be empty")
+    }
+    const newProduct=new Product({
+        id:req.body.id,
+        name:req.body.name,
+        description:req.body.description,
+        feature:req.body.feature,
+        price:req.body.price,
+        category:req.body.category
+    })
+    newProduct.save()
+    .then((data)=>{
+        res.send(data);
+    })
+    .catch((err)=>{
+        return res.status(500).send({message:err.message||"Internal server error"})
+    })
 })
 
-app.post("/products/new",(req,res)=>{
-    products.push(req.body);
-    return res.status(201).send({message:"Product created succeslly"})
+//find all the products in the database
+
+app.get('/products',(req,res)=>{
+    Product.find({})
+    .then((data)=>{
+        res.send(data);
+    })
+    .catch(err=>{
+        res.status(500).send({message:err.message|| "Not any product found in the database"})
+    })
+})
+
+
+//find specific product in the database
+
+app.get('/product/:id',(req,res)=>{
+    const id=req.params.id;
+    Product.findById(id)
+    .then((data)=>{
+        if(!data.length){
+            res.send("invalid id passed")
+        }
+        res.send(data);
+    })
+    .catch(err=>{
+        res.status(500).send({message:err.message|| "Not any product found in the database"})
+    })
     
 })
 
-app.delete("/products/:id",(req,res)=>{
 
-    const product=products.find((product)=>product.id==req.params.id);
-    if(product==undefined){
-        res.status(404);
-        res.send("product id passed is not in the database")
-    }
 
-    const deletingProduct=products.filter((product)=>{
-        product.id!=req.params.id;
-    })
-    return res.status(201).send({message:`product with id ${req.params.id} is deleted  successfully`})
-})
+
+
 
 app.listen(3000,()=>{
     console.log("app listen at port number :3000")
