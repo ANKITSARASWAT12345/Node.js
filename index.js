@@ -102,6 +102,16 @@ app.get('/product/:id',(req,res)=>{
     
 })
 
+//update a existing user in database
+
+app.put('/product/:id',(req,res)=>{
+    const productData=req.body;
+    Product.findByIdAndUpdate(req.params.id,{
+        title:{productData.title},
+        
+    })
+})
+
 
 
 
