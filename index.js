@@ -1,13 +1,15 @@
 const express=require('express');
 const app=express();
-const products=require("./product");
+
 const bodyParser=require("body-parser");
 const mongoose=require("mongoose");
+const morgan=require('morgan');
 
 
 
 
 app.use(bodyParser.json());
+app.use(morgan('combined'));
 
 mongoose.connect('mongodb://127.0.0.1:27017/Backend1')
 .then(()=>{
@@ -106,12 +108,35 @@ app.get('/product/:id',(req,res)=>{
 
 app.put('/product/:id',(req,res)=>{
     const productData=req.body;
-    Product.findByIdAndUpdate(req.params.id,{
-        title:{productData.title},
+    Product.findByIdAndUpdate(req.params.id,productData,{new:true})
+       .then((data)=>{
+        if(!data.length){
+            res.status(404).send("product notfound with the given id");
+        }
+        res.send(data) 
+       })
+       .catch(err=>{
+        return res.status(500).send({message:err.message|| "Internal server error"})
+       })
         
-    })
+        
+
 })
 
+
+app.delete("/product/:id",(req,res)=>{
+    Product.findByIdAndDelete(req.params.id)
+    .then((data)=>{
+        if(!data.length){
+            return res.status(404).send({message:"product not found with  the given id"})
+        }
+
+        return res.send("product deleted successfully!!!");
+    })
+    .catch(err=>{
+        res.send(err)
+    })
+})
 
 
 
