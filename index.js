@@ -4,6 +4,9 @@ const app=express();
 const bodyParser=require("body-parser");
 const mongoose=require("mongoose");
 const morgan=require('morgan');
+const dbConfig = require('./src/configs/db.config');
+const serverConfig = require('./src/configs/server.config');
+
 
 
 
@@ -11,7 +14,7 @@ const morgan=require('morgan');
 app.use(bodyParser.json());
 app.use(morgan('combined'));
 
-mongoose.connect('mongodb://127.0.0.1:27017/Backend1')
+mongoose.connect(dbConfig.DB_URL)
 .then(()=>{
     console.log("database connected succesfully")
 })
@@ -20,128 +23,10 @@ mongoose.connect('mongodb://127.0.0.1:27017/Backend1')
 })
 
 
-const productSchema=mongoose.Schema({
-    id:{
-        type:String,
-        required:true
-    },
-
-    name:{
-        type:String,
-        required:true,
-
-    },
-    description:{
-        type:String,
-        required:true
-    },
-    feature:{
-        type:String
-    },
-    price:{
-        type:Number,
-        required:true
-    },
-    category:{
-        type:String,
-        required:true,
-        enum:['Fashion','Electronics']
-    }
-});
-
-const Product=mongoose.model("product",productSchema)
-
-
-//create a new product 
-app.post('/product',(req,res)=>{
-    if(!req.body){
-        return res.status(400).send("Product can not be empty")
-    }
-    const newProduct=new Product({
-        id:req.body.id,
-        name:req.body.name,
-        description:req.body.description,
-        feature:req.body.feature,
-        price:req.body.price,
-        category:req.body.category
-    })
-    newProduct.save()
-    .then((data)=>{
-        res.send(data);
-    })
-    .catch((err)=>{
-        return res.status(500).send({message:err.message||"Internal server error"})
-    })
-})
-
-//find all the products in the database
-
-app.get('/products',(req,res)=>{
-    Product.find({})
-    .then((data)=>{
-        res.send(data);
-    })
-    .catch(err=>{
-        res.status(500).send({message:err.message|| "Not any product found in the database"})
-    })
-})
-
-
-//find specific product in the database
-
-app.get('/product/:id',(req,res)=>{
-    const id=req.params.id;
-    Product.findById(id)
-    .then((data)=>{
-        if(!data.length){
-            res.send("invalid id passed")
-        }
-        res.send(data);
-    })
-    .catch(err=>{
-        res.status(500).send({message:err.message|| "Not any product found in the database"})
-    })
-    
-})
-
-//update a existing user in database
-
-app.put('/product/:id',(req,res)=>{
-    const productData=req.body;
-    Product.findByIdAndUpdate(req.params.id,productData,{new:true})
-       .then((data)=>{
-        if(!data.length){
-            res.status(404).send("product notfound with the given id");
-        }
-        res.send(data) 
-       })
-       .catch(err=>{
-        return res.status(500).send({message:err.message|| "Internal server error"})
-       })
-        
-        
-
-})
-
-
-app.delete("/product/:id",(req,res)=>{
-    Product.findByIdAndDelete(req.params.id)
-    .then((data)=>{
-        if(!data.length){
-            return res.status(404).send({message:"product not found with  the given id"})
-        }
-
-        return res.send("product deleted successfully!!!");
-    })
-    .catch(err=>{
-        res.send(err)
-    })
-})
+require('./src/Routes/product.routes')(app);
 
 
 
-
-
-app.listen(3000,()=>{
+app.listen(serverConfig.PORT,()=>{
     console.log("app listen at port number :3000")
 })
