@@ -1,6 +1,7 @@
 const Product = require("../models/product.model");
 
 
+
 const createProduct=(req,res)=>{
 
     if(!req.body){
@@ -82,7 +83,7 @@ const deleteProductById=(req,res)=>{
         return res.send("product deleted successfully!!!");
     })
     .catch(err=>{
-        res.send(err)
+        res.send(err);
     })
 }
 
