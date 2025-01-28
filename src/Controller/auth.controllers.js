@@ -1,34 +1,12 @@
 const User = require("../models/user.model");
 const bcrypt=require('bcrypt');
+const jwt=require("jsonwebtoken");
+const authConfig = require("../configs/auth.config");
+
 
 const registerUser=async(req,res)=>{
 
-    if(!req.body.name){
-        return res.status(400).send({message:"failed to register the new user!!!!"})
-    }
-    if(!req.body.userId){
-        return res.status(400).send({message:"failed to register the new user!!!!"})
-    }
-    if(!req.body.password){
-        return res.status(400).send({message:"failed to register the new user!!!!"})
-    }
-    if(!req.body.name){
-        return res.status(400).send({message:"failed to register the new user!!!!"})
-    }
-
-
-    //validate the userId
-    const users= await User.find({
-        $or:[
-        {userId:req.body.userId},
-        {email:req.body.email}
-        ]
-    })
-
-
-    if(users && users.length){
-        return res.status(400).send({message:"user with this id is already present in the database"})
-    }
+   
 
     const newUser=new User({
         name:req.body.name,
@@ -42,4 +20,33 @@ const registerUser=async(req,res)=>{
  
 }
 
-module.exports=registerUser;
+const loginUser=async(req,res)=>{
+  
+    const user=await User.findOne({userId:req.body.userId})
+    if(user===null){
+        return res.status(400).send({message:"userId passed is invalid!!"})
+    }
+
+    const isValidPassword= bcrypt.compareSync(req.body.password,user.password)
+    if(!isValidPassword){
+        return res.status(400).send({message:"password passed is invlaid"})
+    }
+    const token=jwt.sign({id:user.userId},authConfig.SECRETE_KEY,{expiresIn:600})
+
+    res.send({
+
+        name:user.name,
+        userId:user.userId,
+        email:user.email,
+        accessToken:token
+    
+    })
+     
+}
+
+
+
+module.exports={
+    registerUser,loginUser
+
+}

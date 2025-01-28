@@ -1,7 +1,12 @@
-const registerUser = require("../Controller/auth.controllers")
+const {registerUser,loginUser} = require("../Controller/auth.controllers");
+
+const {validateSignUp,validateSignIn} = require("../Middlewares/auth.middlewares");
+
 
 
 module.exports=(app)=>{
 
-    app.post("/auth/signup",registerUser);
+    app.post("/auth/signup",[validateSignUp],registerUser);
+    app.post("/auth/signin",[validateSignIn],loginUser);
 }
+
