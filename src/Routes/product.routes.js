@@ -1,5 +1,6 @@
  
 const { getAllProduct, createProduct, getProductById, updateProductById, deleteProductById } = require('../Controller/product.controller')
+const { verifyJwt, verifyAdmin } = require('../Middlewares/auth.middlewares')
 const Product=require('../models/product.model')
 
  module.exports=(app)=>{
@@ -7,11 +8,11 @@ const Product=require('../models/product.model')
 
 
     //create a new product 
-    app.post('/product',createProduct)
+    app.post('/product',[verifyJwt,verifyAdmin],createProduct)
     
     //find all the products in the database
     
-    app.get('/products',getAllProduct)
+    app.get('/products',[verifyJwt],getAllProduct)
     
     
     //find specific product in the database

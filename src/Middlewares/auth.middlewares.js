@@ -1,4 +1,6 @@
+const authConfig = require("../configs/auth.config");
 const User = require("../models/user.model")
+const jwt=require('jsonwebtoken');
 
 
 
@@ -50,9 +52,38 @@ const validateSignUp=async(req,res,next)=>{
 }
 
 
+const verifyJwt=(req,res,next)=>{
+
+
+    let token=req.headers['access-token'];
+    if(!token){
+        res.status(403).send({message:"No token provided"})
+    }
+    jwt.verify(token,authConfig.SECRETE_KEY,(err,payload)=>{
+        if(err){
+            return res.status(403).send({message:"invalid JWT token provided"});
+        }
+
+        const userId=payload.id;
+        req.userId=userId;
+
+        next();
+    })
+   
+
+}
+
+
+const verifyAdmin=(req,res,next)=>{
+
+    console.log(userId);
+    
+}
 
 module.exports={
     validateSignUp,
-    validateSignIn
+    validateSignIn,
+    verifyJwt,
+    verifyAdmin
 
 }

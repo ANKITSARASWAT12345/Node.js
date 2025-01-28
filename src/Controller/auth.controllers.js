@@ -12,7 +12,8 @@ const registerUser=async(req,res)=>{
         name:req.body.name,
         email:req.body.email,
         userId:req.body.userId,
-        password:bcrypt.hashSync(req.body.password,10)
+        password:bcrypt.hashSync(req.body.password,10),
+        userType:req.body.userType
        })
 
     const savedUser=await newUser.save();
@@ -38,7 +39,8 @@ const loginUser=async(req,res)=>{
         name:user.name,
         userId:user.userId,
         email:user.email,
-        accessToken:token
+        accessToken:token,
+        userType:user.userType
     
     })
      

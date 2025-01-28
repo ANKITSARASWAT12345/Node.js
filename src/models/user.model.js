@@ -17,6 +17,10 @@ const userSchema=mongoose.Schema({
         required:true,
         unique:true
     },
+    userType:{
+       type:String,
+       default:"CUSTOMER"
+    },
     password:{
         type:String,
         required:true
