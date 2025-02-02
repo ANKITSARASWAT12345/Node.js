@@ -17,15 +17,15 @@ const Product=require('../models/product.model')
     
     //find specific product in the database
     
-    app.get('/product/:id',getProductById)
+    app.get('/product/:id',[verifyJwt],getProductById)
     
     //update a existing user in database
     
-    app.put('/product/:id',updateProductById)
+    app.put('/product/:id',[verifyJwt,verifyAdmin],updateProductById)
     
     //Delete product by its id
 
-    app.delete("/product/:id",deleteProductById)
+    app.delete("/product/:id",[verifyJwt,verifyAdmin],deleteProductById)
 
 
  }

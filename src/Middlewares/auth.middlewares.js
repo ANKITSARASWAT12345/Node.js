@@ -1,6 +1,7 @@
 const authConfig = require("../configs/auth.config");
 const User = require("../models/user.model")
 const jwt=require('jsonwebtoken');
+const { userType } = require("../utils/constants");
 
 
 
@@ -64,7 +65,7 @@ const verifyJwt=(req,res,next)=>{
             return res.status(403).send({message:"invalid JWT token provided"});
         }
 
-        const userId=payload.id;
+        var userId=payload.id;
         req.userId=userId;
 
         next();
@@ -74,9 +75,15 @@ const verifyJwt=(req,res,next)=>{
 }
 
 
-const verifyAdmin=(req,res,next)=>{
+const verifyAdmin=async(req,res,next)=>{
 
-    console.log(userId);
+   const user=await User.findOne({userId:req.userId});
+   if(user&&user.userType===userType.ADMIN){
+    next();
+   }
+   else{
+    res.status(403).send({message:"only admin can access this route"})
+   }
     
 }
 
