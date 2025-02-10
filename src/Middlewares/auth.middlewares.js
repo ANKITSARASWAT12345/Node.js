@@ -60,13 +60,15 @@ const verifyJwt=(req,res,next)=>{
     if(!token){
         res.status(403).send({message:"No token provided"})
     }
-    jwt.verify(token,authConfig.SECRETE_KEY,(err,payload)=>{
+    jwt.verify(token,authConfig.SECRETE_KEY,async(err,payload)=>{
         if(err){
             return res.status(403).send({message:"invalid JWT token provided"});
         }
 
         var userId=payload.id;
+        const user=await User.findOne({userId:userId});
         req.userId=userId;
+        req.userRole=user.userType;
 
         next();
     })
@@ -77,8 +79,8 @@ const verifyJwt=(req,res,next)=>{
 
 const verifyAdmin=async(req,res,next)=>{
 
-   const user=await User.findOne({userId:req.userId});
-   if(user&&user.userType===userType.ADMIN){
+  
+   if(req.userRole===userType.ADMIN){
     next();
    }
    else{

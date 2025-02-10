@@ -26,6 +26,7 @@ mongoose.connect(dbConfig.DB_URL)
 
 require('./src/Routes/product.routes')(app);
 require('./src/Routes/auth.routes')(app);
+require('./src/Routes/user.routes')(app);
 
 
 

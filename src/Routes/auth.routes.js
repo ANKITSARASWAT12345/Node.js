@@ -6,7 +6,7 @@ const {validateSignUp,validateSignIn} = require("../Middlewares/auth.middlewares
 
 module.exports=(app)=>{
 
-    app.post("/auth/signup",[validateSignUp],registerUser);
-    app.post("/auth/signin",[validateSignIn],loginUser);
+    app.post("/cs/api/v1/auth/signup",[validateSignUp],registerUser);
+    app.post("/cs/api/v1/auth/signin",[validateSignIn],loginUser);
 }
 
