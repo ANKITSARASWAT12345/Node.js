@@ -20,7 +20,7 @@ const ticketSchema=new mongoose.Schema({
     status:{
         type:String,
         required:true,
-        enum:Object.values(ticketStatus);
+        enum:Object.values(ticketStatus)
     },
     requestor:{
         type:mongoose.Schema.Types.ObjectId,

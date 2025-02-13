@@ -68,6 +68,7 @@ const verifyJwt=(req,res,next)=>{
         var userId=payload.id;
         const user=await User.findOne({userId:userId});
         req.userId=userId;
+        req.id=user._id;
         req.userRole=user.userType;
 
         next();
@@ -89,10 +90,24 @@ const verifyAdmin=async(req,res,next)=>{
     
 }
 
+const verifyAdminOrSelf=(req,res,next)=>{
+
+    const userIdAsked=req.params.id.toLowerCase();
+    const loggedInUserId=req.userId;
+
+    if(req.userRole==userType.ADMIN || (userIdAsked===loggedInUserId)){
+        next();
+        return;
+    }
+    return res.status(403).send({message:"you are not authorized to access this route"})
+ 
+}
+
 module.exports={
     validateSignUp,
     validateSignIn,
     verifyJwt,
-    verifyAdmin
+    verifyAdmin,
+    verifyAdminOrSelf
 
 }
