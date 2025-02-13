@@ -16,7 +16,7 @@ const registerUser=async(req,res)=>{
         userId:req.body.userId,
         password:bcrypt.hashSync(req.body.password,10),
         userType:req.body.userType,
-        userStatus:status
+        userStatus:req.status
        })
 
     const savedUser=await newUser.save();
